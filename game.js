@@ -183,6 +183,9 @@ function renderBoard() {
                 cell.dataset.tempIndex = gameState.temporaryPlacements.indexOf(temp);
                 cell.addEventListener('dragstart', handleCellDragStart);
                 cell.addEventListener('dragend', handleCellDragEnd);
+                // Support tactile mobile
+                cell.addEventListener('touchstart', handleCellTouchStart, { passive: false });
+                cell.addEventListener('touchend', handleTouchEnd);
             }
 
             cell.addEventListener('click', () => handleCellClick(row, col));
@@ -191,6 +194,9 @@ function renderBoard() {
             cell.addEventListener('dragover', handleDragOver);
             cell.addEventListener('drop', handleDrop);
             cell.addEventListener('dragleave', handleDragLeave);
+
+            // Support tactile mobile pour le drop
+            cell.addEventListener('touchmove', handleTouchMove, { passive: false });
 
             boardEl.appendChild(cell);
         }
@@ -205,6 +211,9 @@ function renderRack() {
     // Ajouter les événements de drop sur le chevalet pour permettre de remettre les lettres
     rackEl.addEventListener('dragover', handleRackDragOver);
     rackEl.addEventListener('drop', handleRackDrop);
+
+    // Support tactile mobile
+    rackEl.addEventListener('touchmove', handleTouchMove, { passive: false });
 
     // Récupérer les indices utilisés
     const usedIndices = gameState.temporaryPlacements.map(p => p.rackIndex);
@@ -227,6 +236,9 @@ function renderRack() {
             tile.draggable = true;
             tile.addEventListener('dragstart', handleDragStart);
             tile.addEventListener('dragend', handleDragEnd);
+            // Support tactile mobile
+            tile.addEventListener('touchstart', handleTileTouchStart, { passive: false });
+            tile.addEventListener('touchend', handleTouchEnd);
         }
 
         tile.addEventListener('click', () => handleTileClick(index));
@@ -1068,6 +1080,226 @@ function handleRackDrop(e) {
         renderRack();
     }
 
+    draggedTileIndex = null;
+    draggedFromBoard = false;
+    draggedBoardPosition = null;
+}
+
+// === Gestion du Touch (Mobile) ===
+
+let touchedElement = null;
+let touchClone = null;
+let touchStartX = 0;
+let touchStartY = 0;
+
+// Début du touch sur une tuile du chevalet
+function handleTileTouchStart(e) {
+    if (gameState.gameOver || gameState.currentPlayer > 0) {
+        e.preventDefault();
+        return;
+    }
+
+    const tileElement = e.target;
+    const tileIndex = parseInt(tileElement.dataset.index);
+
+    // Vérifier si la tuile est déjà utilisée
+    const usedIndices = gameState.temporaryPlacements.map(p => p.rackIndex);
+    if (usedIndices.includes(tileIndex)) {
+        return;
+    }
+
+    e.preventDefault(); // Empêcher le scroll
+
+    touchedElement = tileElement;
+    draggedTileIndex = tileIndex;
+    draggedFromBoard = false;
+
+    const touch = e.touches[0];
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+
+    // Créer un clone visuel de la tuile
+    touchClone = tileElement.cloneNode(true);
+    touchClone.style.position = 'fixed';
+    touchClone.style.left = touch.clientX - 32 + 'px';
+    touchClone.style.top = touch.clientY - 32 + 'px';
+    touchClone.style.pointerEvents = 'none';
+    touchClone.style.opacity = '0.8';
+    touchClone.style.zIndex = '10000';
+    touchClone.style.transform = 'scale(1.1)';
+    document.body.appendChild(touchClone);
+
+    tileElement.style.opacity = '0.3';
+}
+
+// Début du touch sur une cellule du plateau
+function handleCellTouchStart(e) {
+    if (gameState.gameOver || gameState.currentPlayer > 0) {
+        e.preventDefault();
+        return;
+    }
+
+    const cellElement = e.target;
+    const tempIndex = parseInt(cellElement.dataset.tempIndex);
+    const temp = gameState.temporaryPlacements[tempIndex];
+
+    if (!temp) return;
+
+    e.preventDefault(); // Empêcher le scroll
+
+    touchedElement = cellElement;
+    draggedTileIndex = temp.rackIndex;
+    draggedFromBoard = true;
+    draggedBoardPosition = { row: temp.row, col: temp.col };
+
+    const touch = e.touches[0];
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+
+    // Créer un clone visuel de la lettre
+    touchClone = cellElement.cloneNode(true);
+    touchClone.style.position = 'fixed';
+    touchClone.style.left = touch.clientX - 32 + 'px';
+    touchClone.style.top = touch.clientY - 32 + 'px';
+    touchClone.style.pointerEvents = 'none';
+    touchClone.style.opacity = '0.8';
+    touchClone.style.zIndex = '10000';
+    touchClone.style.transform = 'scale(1.1)';
+    document.body.appendChild(touchClone);
+
+    cellElement.style.opacity = '0.3';
+}
+
+// Déplacement du touch
+function handleTouchMove(e) {
+    if (!touchClone) return;
+
+    e.preventDefault(); // Empêcher le scroll
+
+    const touch = e.touches[0];
+    touchClone.style.left = touch.clientX - 32 + 'px';
+    touchClone.style.top = touch.clientY - 32 + 'px';
+
+    // Mettre en surbrillance la cellule survolée
+    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+
+    // Retirer le highlight des cellules précédentes
+    document.querySelectorAll('.cell.drag-over').forEach(cell => {
+        cell.classList.remove('drag-over');
+    });
+
+    if (elementBelow && elementBelow.classList.contains('cell')) {
+        const row = parseInt(elementBelow.dataset.row);
+        const col = parseInt(elementBelow.dataset.col);
+
+        // Vérifier si la case est vide
+        const existingPlacement = gameState.temporaryPlacements.find(p => p.row === row && p.col === col);
+        const boardContent = gameState.board[row][col];
+
+        if (!existingPlacement && !boardContent) {
+            elementBelow.classList.add('drag-over');
+        }
+    }
+}
+
+// Fin du touch
+function handleTouchEnd(e) {
+    if (!touchClone) return;
+
+    e.preventDefault();
+
+    const touch = e.changedTouches[0];
+    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+
+    // Nettoyer le clone
+    if (touchClone) {
+        touchClone.remove();
+        touchClone = null;
+    }
+
+    // Restaurer l'opacité de l'élément touché
+    if (touchedElement) {
+        touchedElement.style.opacity = '';
+    }
+
+    // Retirer tous les highlights
+    document.querySelectorAll('.cell.drag-over').forEach(cell => {
+        cell.classList.remove('drag-over');
+    });
+
+    // Vérifier si on a lâché sur une cellule
+    if (elementBelow && elementBelow.classList.contains('cell')) {
+        const row = parseInt(elementBelow.dataset.row);
+        const col = parseInt(elementBelow.dataset.col);
+
+        // Si on drag depuis le plateau, on doit d'abord retirer la lettre de sa position actuelle
+        if (draggedFromBoard && draggedBoardPosition) {
+            const tempIndex = gameState.temporaryPlacements.findIndex(
+                p => p.row === draggedBoardPosition.row && p.col === draggedBoardPosition.col
+            );
+            if (tempIndex !== -1) {
+                gameState.temporaryPlacements.splice(tempIndex, 1);
+            }
+        }
+
+        // Vérifier si la case est vide
+        const existingPlacement = gameState.temporaryPlacements.find(p => p.row === row && p.col === col);
+        const boardContent = gameState.board[row][col];
+
+        if (!existingPlacement && !boardContent) {
+            // Placer la lettre
+            const letter = gameState.rack[draggedTileIndex];
+            gameState.temporaryPlacements.push({
+                row,
+                col,
+                letter,
+                rackIndex: draggedTileIndex
+            });
+            gameState.selectedTile = null;
+            renderBoard();
+            renderRack();
+        } else if (draggedFromBoard) {
+            // Si la case n'est pas vide et qu'on venait du plateau, remettre la lettre à sa place
+            const letter = gameState.rack[draggedTileIndex];
+            gameState.temporaryPlacements.push({
+                row: draggedBoardPosition.row,
+                col: draggedBoardPosition.col,
+                letter,
+                rackIndex: draggedTileIndex
+            });
+            renderBoard();
+            renderRack();
+        }
+    }
+    // Vérifier si on a lâché sur le chevalet (pour remettre une lettre)
+    else if (draggedFromBoard && elementBelow &&
+             (elementBelow.id === 'rack' || elementBelow.closest('#rack'))) {
+        // Retirer la lettre du plateau
+        const tempIndex = gameState.temporaryPlacements.findIndex(
+            p => p.row === draggedBoardPosition.row && p.col === draggedBoardPosition.col
+        );
+
+        if (tempIndex !== -1) {
+            gameState.temporaryPlacements.splice(tempIndex, 1);
+            renderBoard();
+            renderRack();
+        }
+    }
+    // Si on n'a pas lâché sur une cible valide et qu'on venait du plateau, remettre la lettre
+    else if (draggedFromBoard && draggedBoardPosition) {
+        const letter = gameState.rack[draggedTileIndex];
+        gameState.temporaryPlacements.push({
+            row: draggedBoardPosition.row,
+            col: draggedBoardPosition.col,
+            letter,
+            rackIndex: draggedTileIndex
+        });
+        renderBoard();
+        renderRack();
+    }
+
+    // Réinitialiser les variables
+    touchedElement = null;
     draggedTileIndex = null;
     draggedFromBoard = false;
     draggedBoardPosition = null;

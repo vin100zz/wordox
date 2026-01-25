@@ -12,6 +12,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Désactiver la sélection de texte pour améliorer le touch */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    /* Désactiver le callout sur iOS */
+    -webkit-touch-callout: none;
 }
 
 .container {
@@ -244,6 +251,10 @@ body {
     transition: all 0.2s ease;
     user-select: none;
     border-radius: 3px;
+    /* Améliorer le comportement tactile */
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: none;
 }
 
 .cell:hover:not(.occupied) {
@@ -263,7 +274,8 @@ body {
     z-index: 0;
 }
 
-.cell.center.occupied::after {
+.cell.center.occupied::after,
+.cell.center.temporary::after {
     display: none;
 }
 
@@ -279,7 +291,8 @@ body {
     z-index: 0;
 }
 
-.cell.star.occupied::before {
+.cell.star.occupied::before,
+.cell.star.temporary::before {
     display: none;
 }
 
@@ -373,6 +386,10 @@ body {
     user-select: none;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     position: relative;
+    /* Améliorer le comportement tactile */
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: none;
 }
 
 .tile:not(.used):hover {
