@@ -175,6 +175,11 @@ function renderBoard() {
             if (temp) {
                 cell.textContent = temp.letter;
                 cell.classList.add('temporary', PLAYER_COLORS[gameState.currentPlayer]);
+                // Rendre la cellule draggable pour permettre de déplacer la lettre
+                cell.draggable = true;
+                cell.dataset.tempIndex = gameState.temporaryPlacements.indexOf(temp);
+                cell.addEventListener('dragstart', handleCellDragStart);
+                cell.addEventListener('dragend', handleCellDragEnd);
             }
 
             cell.addEventListener('click', () => handleCellClick(row, col));
@@ -193,6 +198,10 @@ function renderBoard() {
 function renderRack() {
     const rackEl = document.getElementById('rack');
     rackEl.innerHTML = '';
+
+    // Ajouter les événements de drop sur le chevalet pour permettre de remettre les lettres
+    rackEl.addEventListener('dragover', handleRackDragOver);
+    rackEl.addEventListener('drop', handleRackDrop);
 
     // Récupérer les indices utilisés
     const usedIndices = gameState.temporaryPlacements.map(p => p.rackIndex);
@@ -880,8 +889,10 @@ function updateUI() {
 // === Gestion du Drag and Drop ===
 
 let draggedTileIndex = null;
+let draggedFromBoard = false; // Indique si on drag depuis le plateau
+let draggedBoardPosition = null; // Position de la lettre sur le plateau
 
-// Début du drag d'une tuile
+// Début du drag d'une tuile du chevalet
 function handleDragStart(e) {
     if (gameState.gameOver || gameState.currentPlayer > 0) {
         e.preventDefault();
@@ -890,6 +901,7 @@ function handleDragStart(e) {
 
     const tileElement = e.target;
     draggedTileIndex = parseInt(tileElement.dataset.index);
+    draggedFromBoard = false;
 
     // Vérifier si la tuile est déjà utilisée
     const usedIndices = gameState.temporaryPlacements.map(p => p.rackIndex);
@@ -903,10 +915,39 @@ function handleDragStart(e) {
     e.dataTransfer.setData('text/plain', draggedTileIndex);
 }
 
-// Fin du drag
+// Début du drag d'une lettre temporaire depuis le plateau
+function handleCellDragStart(e) {
+    if (gameState.gameOver || gameState.currentPlayer > 0) {
+        e.preventDefault();
+        return;
+    }
+
+    const cellElement = e.target;
+    const tempIndex = parseInt(cellElement.dataset.tempIndex);
+    const temp = gameState.temporaryPlacements[tempIndex];
+
+    if (temp) {
+        draggedTileIndex = temp.rackIndex;
+        draggedFromBoard = true;
+        draggedBoardPosition = { row: temp.row, col: temp.col };
+
+        cellElement.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', JSON.stringify({ fromBoard: true, tempIndex }));
+    }
+}
+
+// Fin du drag d'une cellule
+function handleCellDragEnd(e) {
+    e.target.classList.remove('dragging');
+}
+
+// Fin du drag d'une tuile du chevalet
 function handleDragEnd(e) {
     e.target.classList.remove('dragging');
     draggedTileIndex = null;
+    draggedFromBoard = false;
+    draggedBoardPosition = null;
 }
 
 // Survol d'une cellule avec une tuile
@@ -921,7 +962,13 @@ function handleDragOver(e) {
     const row = parseInt(cell.dataset.row);
     const col = parseInt(cell.dataset.col);
 
-    // Vérifier si la case est vide
+    // Si on drag depuis le plateau, ignorer la case d'origine
+    if (draggedFromBoard && draggedBoardPosition &&
+        draggedBoardPosition.row === row && draggedBoardPosition.col === col) {
+        return;
+    }
+
+    // Vérifier si la case est vide (ou si c'est la case d'origine lors d'un drag depuis le plateau)
     const existingPlacement = gameState.temporaryPlacements.find(p => p.row === row && p.col === col);
     const boardContent = gameState.board[row][col];
 
@@ -947,6 +994,16 @@ function handleDrop(e) {
     const row = parseInt(cell.dataset.row);
     const col = parseInt(cell.dataset.col);
 
+    // Si on drag depuis le plateau, on doit d'abord retirer la lettre de sa position actuelle
+    if (draggedFromBoard && draggedBoardPosition) {
+        const tempIndex = gameState.temporaryPlacements.findIndex(
+            p => p.row === draggedBoardPosition.row && p.col === draggedBoardPosition.col
+        );
+        if (tempIndex !== -1) {
+            gameState.temporaryPlacements.splice(tempIndex, 1);
+        }
+    }
+
     // Vérifier si la case est vide
     const existingPlacement = gameState.temporaryPlacements.find(p => p.row === row && p.col === col);
     const boardContent = gameState.board[row][col];
@@ -963,9 +1020,54 @@ function handleDrop(e) {
         gameState.selectedTile = null;
         renderBoard();
         renderRack();
+    } else if (draggedFromBoard) {
+        // Si la case n'est pas vide et qu'on venait du plateau, remettre la lettre à sa place
+        const letter = gameState.rack[draggedTileIndex];
+        gameState.temporaryPlacements.push({
+            row: draggedBoardPosition.row,
+            col: draggedBoardPosition.col,
+            letter,
+            rackIndex: draggedTileIndex
+        });
+        renderBoard();
+        renderRack();
     }
 
     draggedTileIndex = null;
+    draggedFromBoard = false;
+    draggedBoardPosition = null;
+}
+
+// Survol du chevalet avec une lettre du plateau
+function handleRackDragOver(e) {
+    if (gameState.gameOver || gameState.currentPlayer > 0) return;
+    if (!draggedFromBoard) return; // On ne peut remettre que les lettres qui viennent du plateau
+
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+}
+
+// Déposer une lettre sur le chevalet (la retirer du plateau)
+function handleRackDrop(e) {
+    e.preventDefault();
+
+    if (gameState.gameOver || gameState.currentPlayer > 0) return;
+    if (!draggedFromBoard || !draggedBoardPosition) return;
+
+    // Retirer la lettre du plateau
+    const tempIndex = gameState.temporaryPlacements.findIndex(
+        p => p.row === draggedBoardPosition.row && p.col === draggedBoardPosition.col
+    );
+
+    if (tempIndex !== -1) {
+        gameState.temporaryPlacements.splice(tempIndex, 1);
+        renderBoard();
+        renderRack();
+    }
+
+    draggedTileIndex = null;
+    draggedFromBoard = false;
+    draggedBoardPosition = null;
 }
 
 // Afficher un message
