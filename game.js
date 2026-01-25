@@ -199,7 +199,7 @@ function renderRack() {
 
     gameState.rack.forEach((letter, index) => {
         const tile = document.createElement('div');
-        tile.className = 'tile';
+        tile.className = `tile ${PLAYER_COLORS[gameState.currentPlayer]}`;
         tile.textContent = letter;
         tile.dataset.index = index;
 
@@ -852,7 +852,7 @@ function updateUI() {
         const card = document.querySelector(`.score-card.${PLAYER_COLORS[i]}`);
         const totalScore = gameState.scores[i] + gameState.frozenScores[i];
         card.querySelector('.score-value').textContent = totalScore;
-        card.querySelector('.score-frozen').textContent = `Plateau: ${gameState.scores[i]} | Figé: ${gameState.frozenScores[i]}`;
+        card.querySelector('.score-frozen').textContent = `${gameState.frozenScores[i]}`;
 
         if (i === gameState.currentPlayer && !gameState.gameOver) {
             card.classList.add('active');
@@ -860,11 +860,6 @@ function updateUI() {
             card.classList.remove('active');
         }
     }
-
-    // Joueur actuel
-    document.getElementById('currentPlayer').textContent = gameState.gameOver ?
-        'Partie terminée' :
-        `Tour du ${PLAYER_NAMES[gameState.currentPlayer]}`;
 
     // Lettres restantes
     document.getElementById('remainingTiles').textContent = `Lettres restantes: ${gameState.bag.length}`;
@@ -875,17 +870,11 @@ function updateUI() {
     document.getElementById('passBtn').disabled = isAITurn;
     document.getElementById('cancelBtn').disabled = isAITurn;
 
-    // Historique
-    const historyList = document.getElementById('historyList');
-    historyList.innerHTML = '';
-    gameState.history.slice(0, 10).forEach(entry => {
-        const item = document.createElement('div');
-        item.className = `history-item ${PLAYER_COLORS[entry.player]}`;
-        item.textContent = `${PLAYER_NAMES[entry.player]}: ${entry.words} (Total: ${entry.score})`;
-        historyList.appendChild(item);
-    });
 
     renderRack();
+
+    // Afficher le tour du joueur
+    showMessage('');
 }
 
 // === Gestion du Drag and Drop ===
@@ -982,10 +971,16 @@ function handleDrop(e) {
 // Afficher un message
 function showMessage(message) {
     const msgEl = document.getElementById('gameMessage');
-    msgEl.textContent = message;
-    setTimeout(() => {
-        msgEl.textContent = '';
-    }, 3000);
+    const playerTurn = gameState.gameOver ? 'Partie terminée' : `Tour du ${PLAYER_NAMES[gameState.currentPlayer]}`;
+
+    if (message) {
+        msgEl.textContent = `${playerTurn} - ${message}`;
+        setTimeout(() => {
+            msgEl.textContent = playerTurn;
+        }, 3000);
+    } else {
+        msgEl.textContent = playerTurn;
+    }
 }
 
 // Surligner les erreurs
@@ -1000,14 +995,7 @@ function highlightErrors() {
 // Configuration des événements
 function setupEventListeners() {
     document.getElementById('newGameBtn').addEventListener('click', () => {
-        if (confirm('Commencer une nouvelle partie ?')) {
-            newGame();
-        }
-    });
-
-    document.getElementById('resetBtn').addEventListener('click', () => {
-        if (confirm('Réinitialiser complètement le jeu ?')) {
-            localStorage.removeItem('wordoxGameState');
+        if (confirm('Quitter la partie en cours et commencer une nouvelle partie ?')) {
             newGame();
         }
     });

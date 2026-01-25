@@ -8,61 +8,53 @@
 </head>
 <body>
     <div class="container">
-        <header>
+        <!-- Header avec bouton quitter -->
+        <header class="main-header">
             <h1>WORDOX</h1>
-            <div class="game-info">
-                <button id="newGameBtn" class="btn">Nouvelle Partie</button>
-                <button id="resetBtn" class="btn">Réinitialiser</button>
-            </div>
+            <button id="newGameBtn" class="btn btn-quit">Quitter la partie</button>
         </header>
 
+        <!-- Scores des joueurs -->
         <div class="scores-panel">
             <div class="score-card player-1">
-                <div class="player-name">Joueur 1</div>
                 <div class="score-value">0</div>
                 <div class="score-frozen">Figé: 0</div>
             </div>
             <div class="score-card player-2">
-                <div class="player-name">Joueur 2</div>
                 <div class="score-value">0</div>
                 <div class="score-frozen">Figé: 0</div>
             </div>
             <div class="score-card player-3">
-                <div class="player-name">Joueur 3</div>
                 <div class="score-value">0</div>
                 <div class="score-frozen">Figé: 0</div>
             </div>
             <div class="score-card player-4">
-                <div class="player-name">Joueur 4</div>
                 <div class="score-value">0</div>
                 <div class="score-frozen">Figé: 0</div>
             </div>
         </div>
 
-        <div class="game-status">
-            <div id="currentPlayer">Tour du Joueur 1 (Bleu)</div>
-            <div id="gameMessage"></div>
-            <div id="remainingTiles">Lettres restantes: 102</div>
+        <!-- Bande de messages -->
+        <div class="message-bar">
+            <div id="gameMessage">Tour du Joueur 1 (Bleu)</div>
+            <div id="remainingTiles">Lettres: 102</div>
         </div>
 
+        <!-- Plateau de jeu -->
         <div class="game-board">
             <div id="board"></div>
         </div>
 
+        <!-- Chevalet -->
         <div class="rack-container">
-            <h3>Chevalet</h3>
             <div id="rack" class="rack"></div>
         </div>
 
+        <!-- Boutons d'action -->
         <div class="controls">
-            <button id="validateBtn" class="btn btn-primary">Valider le mot</button>
-            <button id="passBtn" class="btn btn-secondary">Passer</button>
-            <button id="cancelBtn" class="btn btn-secondary">Annuler</button>
-        </div>
-
-        <div class="history">
-            <h3>Historique</h3>
-            <div id="historyList"></div>
+            <button id="validateBtn" class="btn btn-validate">Valider</button>
+            <button id="passBtn" class="btn btn-pass">Passer</button>
+            <button id="cancelBtn" class="btn btn-cancel">Annuler</button>
         </div>
     </div>
 
@@ -70,7 +62,7 @@
         <div class="modal-content">
             <h2>Partie terminée !</h2>
             <div id="finalScores"></div>
-            <button id="newGameFromModal" class="btn btn-primary">Nouvelle Partie</button>
+            <button id="newGameFromModal" class="btn btn-validate">Nouvelle Partie</button>
         </div>
     </div>
 
