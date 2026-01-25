@@ -1091,6 +1091,8 @@ let touchedElement = null;
 let touchClone = null;
 let touchStartX = 0;
 let touchStartY = 0;
+let lastHighlightedCell = null; // Cache de la dernière cellule surlignée
+let rafId = null; // ID pour requestAnimationFrame
 
 // Début du touch sur une tuile du chevalet
 function handleTileTouchStart(e) {
@@ -1121,12 +1123,14 @@ function handleTileTouchStart(e) {
     // Créer un clone visuel de la tuile
     touchClone = tileElement.cloneNode(true);
     touchClone.style.position = 'fixed';
-    touchClone.style.left = touch.clientX - 32 + 'px';
-    touchClone.style.top = touch.clientY - 32 + 'px';
+    touchClone.style.left = (touch.clientX - 32) + 'px';
+    touchClone.style.top = (touch.clientY - 32) + 'px';
     touchClone.style.pointerEvents = 'none';
     touchClone.style.opacity = '0.8';
     touchClone.style.zIndex = '10000';
     touchClone.style.transform = 'scale(1.1)';
+    touchClone.style.transition = 'none'; // Désactiver les transitions pour plus de fluidité
+    touchClone.style.willChange = 'transform'; // Optimisation GPU
     document.body.appendChild(touchClone);
 
     tileElement.style.opacity = '0.3';
@@ -1159,47 +1163,67 @@ function handleCellTouchStart(e) {
     // Créer un clone visuel de la lettre
     touchClone = cellElement.cloneNode(true);
     touchClone.style.position = 'fixed';
-    touchClone.style.left = touch.clientX - 32 + 'px';
-    touchClone.style.top = touch.clientY - 32 + 'px';
+    touchClone.style.left = (touch.clientX - 32) + 'px';
+    touchClone.style.top = (touch.clientY - 32) + 'px';
     touchClone.style.pointerEvents = 'none';
     touchClone.style.opacity = '0.8';
     touchClone.style.zIndex = '10000';
     touchClone.style.transform = 'scale(1.1)';
+    touchClone.style.transition = 'none'; // Désactiver les transitions
+    touchClone.style.willChange = 'transform'; // Optimisation GPU
     document.body.appendChild(touchClone);
 
     cellElement.style.opacity = '0.3';
 }
 
-// Déplacement du touch
+// Déplacement du touch (optimisé)
 function handleTouchMove(e) {
     if (!touchClone) return;
 
     e.preventDefault(); // Empêcher le scroll
 
     const touch = e.touches[0];
-    touchClone.style.left = touch.clientX - 32 + 'px';
-    touchClone.style.top = touch.clientY - 32 + 'px';
 
-    // Mettre en surbrillance la cellule survolée
-    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
-
-    // Retirer le highlight des cellules précédentes
-    document.querySelectorAll('.cell.drag-over').forEach(cell => {
-        cell.classList.remove('drag-over');
-    });
-
-    if (elementBelow && elementBelow.classList.contains('cell')) {
-        const row = parseInt(elementBelow.dataset.row);
-        const col = parseInt(elementBelow.dataset.col);
-
-        // Vérifier si la case est vide
-        const existingPlacement = gameState.temporaryPlacements.find(p => p.row === row && p.col === col);
-        const boardContent = gameState.board[row][col];
-
-        if (!existingPlacement && !boardContent) {
-            elementBelow.classList.add('drag-over');
-        }
+    // Utiliser requestAnimationFrame pour des animations fluides
+    if (rafId) {
+        cancelAnimationFrame(rafId);
     }
+
+    rafId = requestAnimationFrame(() => {
+        // Déplacer le clone avec transform pour de meilleures performances
+        const x = touch.clientX - 32;
+        const y = touch.clientY - 32;
+        touchClone.style.transform = `translate(${x - parseInt(touchClone.style.left)}px, ${y - parseInt(touchClone.style.top)}px) scale(1.1)`;
+
+        // Mettre en surbrillance la cellule survolée (optimisé)
+        const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+
+        // Si c'est la même cellule que la dernière fois, ne rien faire
+        if (elementBelow === lastHighlightedCell) {
+            return;
+        }
+
+        // Retirer le highlight de l'ancienne cellule
+        if (lastHighlightedCell) {
+            lastHighlightedCell.classList.remove('drag-over');
+        }
+
+        lastHighlightedCell = null;
+
+        if (elementBelow && elementBelow.classList.contains('cell')) {
+            const row = parseInt(elementBelow.dataset.row);
+            const col = parseInt(elementBelow.dataset.col);
+
+            // Vérifier si la case est vide
+            const existingPlacement = gameState.temporaryPlacements.find(p => p.row === row && p.col === col);
+            const boardContent = gameState.board[row][col];
+
+            if (!existingPlacement && !boardContent) {
+                elementBelow.classList.add('drag-over');
+                lastHighlightedCell = elementBelow;
+            }
+        }
+    });
 }
 
 // Fin du touch
@@ -1207,6 +1231,12 @@ function handleTouchEnd(e) {
     if (!touchClone) return;
 
     e.preventDefault();
+
+    // Annuler requestAnimationFrame en cours
+    if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+    }
 
     const touch = e.changedTouches[0];
     const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -1222,10 +1252,11 @@ function handleTouchEnd(e) {
         touchedElement.style.opacity = '';
     }
 
-    // Retirer tous les highlights
-    document.querySelectorAll('.cell.drag-over').forEach(cell => {
-        cell.classList.remove('drag-over');
-    });
+    // Retirer tous les highlights (optimisé)
+    if (lastHighlightedCell) {
+        lastHighlightedCell.classList.remove('drag-over');
+        lastHighlightedCell = null;
+    }
 
     // Vérifier si on a lâché sur une cellule
     if (elementBelow && elementBelow.classList.contains('cell')) {
