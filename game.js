@@ -1,12 +1,15 @@
 // Chargement du dictionnaire
 let dictionary = [];
 
-// Distribution des lettres du sabot
+// Distribution des lettres du sabot (basée sur la fréquence en français)
 const LETTER_DISTRIBUTION = {
-    'A': 18, 'B': 3, 'C': 4, 'D': 6, 'E': 31, 'F': 4, 'G': 4, 'H': 4,
-    'I': 16, 'J': 2, 'K': 2, 'L': 11, 'M': 6, 'N': 12, 'O': 12, 'P': 4,
-    'Q': 2, 'R': 11, 'S': 12, 'T': 11, 'U': 11, 'V': 4, 'W': 2, 'X': 2,
-    'Y': 2, 'Z': 2
+    'E': 35,  // La lettre la plus fréquente en français
+    'A': 20,  'I': 18,  'S': 16,  'N': 15,  'R': 14,  'T': 14,  // Très courantes
+    'O': 13,  'L': 12,  'U': 12,  // Courantes
+    'D': 7,   'M': 6,   'P': 5,   'C': 5,   // Moyennement courantes
+    'B': 3,   'V': 3,   'H': 3,   'F': 3,   'G': 3,   // Moins courantes
+    'Q': 2,   'J': 2,   'X': 1,   'Y': 1,   // Rares
+    'Z': 1,   'K': 1,   'W': 1    // Très rares
 };
 
 // État du jeu
