@@ -66,6 +66,12 @@ body {
     gap: 6px;
 }
 
+.btn-icon {
+    font-size: 20px;
+    line-height: 1;
+    font-weight: 700;
+}
+
 .btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -538,6 +544,10 @@ body {
         padding: 8px 14px;
         font-size: 12px;
         gap: 4px;
+    }
+
+    .btn-icon {
+        font-size: 16px;
     }
 
     .btn-quit {
