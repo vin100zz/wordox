@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordox - Jeu de Lettres</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>WORDOX</h1>
+            <div class="game-info">
+                <button id="newGameBtn" class="btn">Nouvelle Partie</button>
+                <button id="resetBtn" class="btn">Réinitialiser</button>
+            </div>
+        </header>
+
+        <div class="scores-panel">
+            <div class="score-card player-1">
+                <div class="player-name">Joueur 1</div>
+                <div class="score-value">0</div>
+                <div class="score-frozen">Figé: 0</div>
+            </div>
+            <div class="score-card player-2">
+                <div class="player-name">Joueur 2</div>
+                <div class="score-value">0</div>
+                <div class="score-frozen">Figé: 0</div>
+            </div>
+            <div class="score-card player-3">
+                <div class="player-name">Joueur 3</div>
+                <div class="score-value">0</div>
+                <div class="score-frozen">Figé: 0</div>
+            </div>
+            <div class="score-card player-4">
+                <div class="player-name">Joueur 4</div>
+                <div class="score-value">0</div>
+                <div class="score-frozen">Figé: 0</div>
+            </div>
+        </div>
+
+        <div class="game-status">
+            <div id="currentPlayer">Tour du Joueur 1 (Bleu)</div>
+            <div id="gameMessage"></div>
+            <div id="remainingTiles">Lettres restantes: 102</div>
+        </div>
+
+        <div class="game-board">
+            <div id="board"></div>
+        </div>
+
+        <div class="rack-container">
+            <h3>Chevalet</h3>
+            <div id="rack" class="rack"></div>
+        </div>
+
+        <div class="controls">
+            <button id="validateBtn" class="btn btn-primary">Valider le mot</button>
+            <button id="passBtn" class="btn btn-secondary">Passer</button>
+            <button id="cancelBtn" class="btn btn-secondary">Annuler</button>
+        </div>
+
+        <div class="history">
+            <h3>Historique</h3>
+            <div id="historyList"></div>
+        </div>
+    </div>
+
+    <div id="gameOverModal" class="modal">
+        <div class="modal-content">
+            <h2>Partie terminée !</h2>
+            <div id="finalScores"></div>
+            <button id="newGameFromModal" class="btn btn-primary">Nouvelle Partie</button>
+        </div>
+    </div>
+
+    <script src="ai.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
+
