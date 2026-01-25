@@ -6,7 +6,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: linear-gradient(135deg, #4a3f5e 0%, #2d2640 100%);
     min-height: 100vh;
     padding: 10px;
     display: flex;
@@ -39,40 +39,31 @@ body {
     justify-content: space-between;
     align-items: center;
     padding-bottom: 8px;
-    border-bottom: 3px solid #e0e0e0;
+    border-bottom: 3px solid #b19cd9;
 }
 
 .main-header h1 {
     font-size: 1.8em;
     font-weight: 800;
-    color: #2c3e50;
+    color: #6c5a7d;
     letter-spacing: 2px;
     text-transform: uppercase;
 }
 
 .btn {
-    padding: 12px 24px;
+    padding: 10px 20px;
     border: none;
     border-radius: 10px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    text-transform: uppercase;
     letter-spacing: 0.5px;
-}
-
-
-.btn {
-    padding: 12px 24px;
-    border: none;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    min-width: 50px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 
 .btn:hover {
@@ -91,42 +82,47 @@ body {
 }
 
 .btn-quit {
-    background: #e74c3c;
+    background: #7c6a93;
     color: white;
+    padding: 8px 16px;
+    font-size: 14px;
 }
 
 .btn-quit:hover:not(:disabled) {
-    background: #c0392b;
+    background: #6a5a7d;
 }
 
 .btn-validate {
-    background: #27ae60;
+    background: #9b7eb5;
     color: white;
     flex: 2;
+    font-size: 16px;
 }
 
 .btn-validate:hover:not(:disabled) {
-    background: #229954;
+    background: #8a6fa4;
 }
 
 .btn-pass {
-    background: #95a5a6;
+    background: #7f8c8d;
     color: white;
     flex: 1;
+    font-size: 14px;
 }
 
 .btn-pass:hover:not(:disabled) {
-    background: #7f8c8d;
+    background: #6c7a7b;
 }
 
 .btn-cancel {
-    background: #e67e22;
+    background: #95a5a6;
     color: white;
     flex: 1;
+    font-size: 14px;
 }
 
 .btn-cancel:hover:not(:disabled) {
-    background: #d35400;
+    background: #838f90;
 }
 
 /* === SCORES === */
@@ -200,7 +196,7 @@ body {
 
 /* === BANDE DE MESSAGES === */
 .message-bar {
-    background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+    background: linear-gradient(135deg, #6c5a7d 0%, #5a4a6b 100%);
     color: white;
     padding: 10px 15px;
     border-radius: 10px;
@@ -231,7 +227,7 @@ body {
     grid-template-columns: repeat(9, 65px);
     grid-template-rows: repeat(9, 65px);
     gap: 2px;
-    background: #34495e;
+    background: #7c6a93;
     padding: 2px;
     border-radius: 10px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -353,8 +349,8 @@ body {
 }
 
 .cell.drag-over {
-    background: #3498db !important;
-    border: 3px solid #2980b9 !important;
+    background: #b19cd9 !important;
+    border: 3px solid #9370db !important;
     transform: scale(1.1);
 }
 
@@ -370,7 +366,7 @@ body {
     justify-content: center;
     gap: 8px;
     padding: 15px 25px;
-    background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+    background: linear-gradient(135deg, #b5b9bd 0%, #95a5a6 100%);
     border-radius: 15px;
     min-height: 85px;
     align-items: center;
@@ -389,7 +385,6 @@ body {
     cursor: grab;
     transition: all 0.2s ease;
     user-select: none;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     position: relative;
     /* Améliorer le comportement tactile */
     -webkit-user-select: none;
@@ -456,8 +451,8 @@ body {
 }
 
 .controls .btn {
-    font-size: 14px;
-    padding: 12px 24px;
+    padding: 12px 20px;
+    min-width: 80px;
 }
 
 /* === MODAL === */
@@ -540,7 +535,22 @@ body {
     }
 
     .btn {
-        padding: 8px 16px;
+        padding: 8px 14px;
+        font-size: 12px;
+        gap: 4px;
+    }
+
+    .btn-quit {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .btn-validate {
+        font-size: 13px;
+    }
+
+    .btn-pass,
+    .btn-cancel {
         font-size: 12px;
     }
 
@@ -613,11 +623,11 @@ body {
     }
 
     .controls {
-        gap: 8px;
+        gap: 6px;
     }
 
     .controls .btn {
-        padding: 10px 18px;
-        font-size: 13px;
+        padding: 10px 14px;
+        min-width: 70px;
     }
 }
