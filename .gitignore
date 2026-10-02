@@ -1,2 +1,7 @@
 .idea
 
+# Salons de jeu créés par api/signal.php
+/data/
+
+# Source des fréquences (25 Mo), à télécharger pour reconstruire le dictionnaire
+/tools/data/Lexique383.tsv
