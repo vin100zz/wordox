@@ -52,6 +52,10 @@ $logo = '<span class="tile p0">W</span><span class="tile p1">O</span><span class
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#f4f2fb">
     <title>Wordox</title>
+    <link rel="icon" href="<?php echo asset('icons/favicon.svg'); ?>" type="image/svg+xml">
+    <link rel="icon" href="<?php echo asset('icons/favicon-32.png'); ?>" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="<?php echo asset('icons/apple-touch-icon.png'); ?>" sizes="180x180">
+    <link rel="manifest" href="manifest.webmanifest">
     <link rel="preload" href="fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="<?php echo asset('css/style.css'); ?>">
@@ -86,6 +90,8 @@ $logo = '<span class="tile p0">W</span><span class="tile p1">O</span><span class
                 </button>
             </div>
             <button class="btn link" id="home-rules">Règles du jeu</button>
+            <button class="btn link" id="home-install" hidden>Installer Wordox</button>
+            <p class="hint" id="install-status" role="status" hidden></p>
             <p class="hint" id="home-loading">Chargement du dictionnaire…</p>
         </div>
     </section>
@@ -253,5 +259,6 @@ $logo = '<span class="tile p0">W</span><span class="tile p1">O</span><span class
 <script src="<?php echo asset('js/net.js'); ?>"></script>
 <script src="<?php echo asset('js/dnd.js'); ?>"></script>
 <script src="<?php echo asset('js/app.js'); ?>"></script>
+<script src="<?php echo asset('js/pwa.js'); ?>"></script>
 </body>
 </html>

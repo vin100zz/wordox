@@ -34,6 +34,26 @@ Copier le dossier sur un serveur web avec PHP 5.3 ou plus récent. Aucune base d
 - Les polices (Bricolage Grotesque, Figtree) sont dans `fonts/`, avec leur licence (SIL Open Font
   License) : aucune police n'est chargée depuis un autre site.
 
+### Installation sur Android (PWA)
+
+Déployer aussi `manifest.webmanifest`, `sw.php`, `icons/` et tous les fichiers de `js/`.
+Le site doit être servi en **HTTPS** (ou sur `localhost` pour les essais).
+Les chemins relatifs permettent également une installation dans un sous-dossier.
+
+Dans Chrome sur Android, ouvrir le jeu puis toucher **Installer Wordox** lorsque le bouton
+apparaît, ou ouvrir le menu du navigateur et choisir **Ajouter à l'écran d'accueil / Installer**.
+L'icône lance le jeu dans sa propre fenêtre, sans barre d'adresse.
+
+Après le premier chargement connecté et la fin de l'installation du service worker, le solo
+est disponible hors connexion, y compris le dictionnaire et l'IA. Le mode à deux nécessite
+toujours le réseau. La sauvegarde de la partie solo reste dans le navigateur.
+Une nouvelle version est détectée automatiquement à l'ouverture du jeu ; fermer toutes ses
+fenêtres puis le rouvrir pour l'activer, sans interrompre une partie en cours.
+
+Les sources vectorielles sont `icons/icon.svg` et `icons/favicon.svg`. Pour régénérer les PNG :
+installer `sharp` dans l'environnement de développement puis lancer `node tools/build-icons.js`.
+L'icône Android dispose d'une variante `maskable` adaptée aux découpes rondes et carrées.
+
 ## Organisation
 
 | Fichier | Rôle |
@@ -47,6 +67,9 @@ Copier le dossier sur un serveur web avec PHP 5.3 ou plus récent. Aucune base d
 | `js/net.js` | Connexion pair-à-pair |
 | `js/app.js` | Écrans, affichage, déroulement de la partie |
 | `css/style.css` | Couleurs, lettres en relief, mise en page adaptative |
+| `manifest.webmanifest`, `js/pwa.js` | Installation et lancement standalone |
+| `sw.php`, `js/service-worker.js` | Cache hors connexion, versionné automatiquement |
+| `icons/` | Favicon et icônes de l'application |
 
 ## Dictionnaire et niveaux de l'IA
 
@@ -69,7 +92,12 @@ node tools/test-rules.js       # tests des règles et du générateur de coups
 node tools/sim.js 100          # duels IA contre IA, pour calibrer les niveaux
 node tools/sim.js 1 --words    # exemples de mots joués à chaque niveau
 node tools/build-dict.js       # reconstruit dict/words.txt
+node tools/test-pwa.js         # tests PWA dans Chromium (PHP et Playwright requis)
 ```
+
+Pour le test PWA, les variables `PHP_BINARY` et `BROWSER_BINARY` peuvent désigner les exécutables
+PHP et Chromium/Chrome/Edge. Le test vérifie le manifeste, les icônes, le solo avec l'IA hors
+connexion, la reprise et les invitations, à la racine et dans un sous-dossier.
 
 `build-dict.js` lit `tools/data/ods4.txt` et `tools/data/Lexique383.tsv`. Ce dernier n'est pas
 versionné : le télécharger depuis http://www.lexique.org/databases/Lexique383/Lexique383.tsv.
