@@ -55,7 +55,7 @@ $logo = '<span class="tile p0">W</span><span class="tile p1">O</span><span class
     <link rel="icon" href="<?php echo asset('icons/favicon.svg'); ?>" type="image/svg+xml">
     <link rel="icon" href="<?php echo asset('icons/favicon-32.png'); ?>" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="<?php echo asset('icons/apple-touch-icon.png'); ?>" sizes="180x180">
-    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="manifest" href="manifest.webmanifest" crossorigin="use-credentials">
     <link rel="preload" href="fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="<?php echo asset('css/style.css'); ?>">
